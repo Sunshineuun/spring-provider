@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: spring-provider
+  # 解决Dubbo的循环依赖
+  main:
+    allow-circular-references: true
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      server-addr: 192.168.1.8:8848
+      config:
+        file-extension: yaml
+        # shared-configs: log.yml,spring.yml
+        # refresh-enabled: true
+        extension-configs:
+          - data-id: ${spring.application.name}.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+          - data-id: log.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        enabled: false
+      discovery:
+        # 控制是否注册到Nacos上
+        enabled: true
+# 配置要加载boot里面才行，加载application中则加载不到文件
+logging:
+  level:
+    root: info
+  config: classpath:logback-config.xml
+  file:
+    path: /tmp/logs
