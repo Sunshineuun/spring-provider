@@ -1,11 +1,10 @@
 package com.qiusm.spring.provider.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 /**
  * @author qiushengming
@@ -14,24 +13,26 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 public class CorsConfiguration {
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                    .allowedHeaders("*")
-                    .allowedMethods("*")
-                    .allowedOrigins("*");
-            }
+    private org.springframework.web.cors.CorsConfiguration buildConfig() {
+        org.springframework.web.cors.CorsConfiguration corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+        // 允许任何域名使用
+        corsConfiguration.addAllowedOriginPattern("*");
+        // 允许任何头
+        corsConfiguration.addAllowedHeader("*");
+        // 允许任何方法（post、get等）
+        corsConfiguration.addAllowedMethod("*");
+        // 允许任何站点
+        corsConfiguration.setAllowCredentials(true);
+        return corsConfiguration;
+    }
 
-            @Override
-            public void addViewControllers(ViewControllerRegistry registry) {
-                registry.addViewController("/index").setViewName("index");
-                registry.addViewController("/").setViewName("index");
-                registry.addViewController("/login").setViewName("login");
-            }
-        };
+    @Bean
+    @ConditionalOnMissingBean(CorsFilter.class)
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // 对接口配置跨域设置
+        source.registerCorsConfiguration("/**", buildConfig());
+        return new CorsFilter(source);
     }
 
 }
